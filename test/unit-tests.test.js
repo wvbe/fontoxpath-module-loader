@@ -13,20 +13,6 @@ describe('Regex to match a module declaration', () => {
 		expect(importLocation).toBe('file');
 	});
 
-	it('(Invalid) Import statement without prefix', () => {
-		const statement = 'import module namespace "uri" at "file";';
-		const match = MATCH_IMPORTED_MODULE_NS_FROM_STRING.exec(statement);
-		MATCH_IMPORTED_MODULE_NS_FROM_STRING.lastIndex = 0;
-		expect(match).toBeNull();
-	});
-
-	it('(invalid) Import statement without URI', () => {
-		const statement = 'import module namespace prefix at "file";';
-		const match = MATCH_IMPORTED_MODULE_NS_FROM_STRING.exec(statement);
-		MATCH_IMPORTED_MODULE_NS_FROM_STRING.lastIndex = 0;
-		expect(match).toBeNull();
-	});
-
 	it('Import statement without file', () => {
 		const statement = 'import module namespace prefix="uri";\n';
 		const [_occurrence, importPrefix, importUrl, importLocation] =
@@ -37,13 +23,6 @@ describe('Regex to match a module declaration', () => {
 		expect(importLocation).toBeUndefined();
 	});
 
-	it('(invalid) Import statement without URI or file', () => {
-		const statement = 'import module namespace prefix at "file";';
-		const match = MATCH_IMPORTED_MODULE_NS_FROM_STRING.exec(statement);
-		MATCH_IMPORTED_MODULE_NS_FROM_STRING.lastIndex = 0;
-		expect(match).toBeNull();
-	});
-
 	it('Import statement without whitespace', () => {
 		const statement = 'importmodulenamespaceprefix="uri"at"file";';
 		const [_occurrence, importPrefix, importUrl, importLocation] =
@@ -52,6 +31,27 @@ describe('Regex to match a module declaration', () => {
 		expect(importPrefix).toBeUndefined();
 		expect(importUrl).toBeUndefined();
 		expect(importLocation).toBeUndefined();
+	});
+
+	it('(Unsupported) Import statement without URI or file', () => {
+		const statement = 'import module namespace prefix at "file";';
+		const match = MATCH_IMPORTED_MODULE_NS_FROM_STRING.exec(statement);
+		MATCH_IMPORTED_MODULE_NS_FROM_STRING.lastIndex = 0;
+		expect(match).toBeNull();
+	});
+
+	it('(Unsupported) Import statement without prefix', () => {
+		const statement = 'import module namespace "uri" at "file";';
+		const match = MATCH_IMPORTED_MODULE_NS_FROM_STRING.exec(statement);
+		MATCH_IMPORTED_MODULE_NS_FROM_STRING.lastIndex = 0;
+		expect(match).toBeNull();
+	});
+
+	it('(Unsupported) Import statement without URI', () => {
+		const statement = 'import module namespace prefix at "file";';
+		const match = MATCH_IMPORTED_MODULE_NS_FROM_STRING.exec(statement);
+		MATCH_IMPORTED_MODULE_NS_FROM_STRING.lastIndex = 0;
+		expect(match).toBeNull();
 	});
 });
 

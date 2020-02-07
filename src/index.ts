@@ -21,10 +21,7 @@ const REGEXSTRING = [
 	`\\s+`,
 	`"([^"]*)")?;` // file capture group
 ].join('');
-console.log(REGEXSTRING);
 export const MATCH_IMPORTED_MODULE_NS_FROM_STRING = new RegExp(REGEXSTRING, 'gm');
-
-
 
 declare type XQueryModuleMetadata = {
 	contents: string,
