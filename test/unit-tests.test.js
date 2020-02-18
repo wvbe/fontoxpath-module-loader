@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-import moduleLoader, { MATCH_IMPORTED_MODULE_NS_FROM_STRING } from '../src/index';
+import { getXQueryModulesInDependencyOrder, MATCH_IMPORTED_MODULE_NS_FROM_STRING } from '../src/index';
 describe('Regex to match a module declaration', () => {
 	it('Import statement with extra whitespace everywhere', () => {
 		const statement = '\timport \t module \n namespace   prefix  =  "uri"   at  "file";\n';
@@ -57,7 +57,7 @@ describe('Regex to match a module declaration', () => {
 
 describe('Synchronous NodeJS', () => {
 	it('loads modules in the correct order', async () => {
-		const modules = await moduleLoader(
+		const modules = await getXQueryModulesInDependencyOrder(
 			(a, b) => path.resolve(path.dirname(a), b),
 			a => fs.readFileSync(a, 'utf8'),
 			path.resolve(__dirname, 'xquery', 'main.xqm')

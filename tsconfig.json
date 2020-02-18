@@ -1,23 +1,11 @@
 {
 	"compilerOptions": {
-		"baseUrl": ".",
-		"paths": {
-			"*": [
-				"types/*"
-			]
-		},
-		"target": "es6",
+
+		"target": "ES5",
 		"module": "commonjs",
-		"outDir": "dist",
-		"sourceMap": true,
-		"strict": true,
-		"emitDecoratorMetadata": true,
-		"esModuleInterop": true,
-		"experimentalDecorators": true,
-		"resolveJsonModule": true
+		"outDir": "./dist",
+		"rootDir": ".",
+		"sourceMap": true
 	},
-	"exclude": [
-		"editors",
-		"node_modules"
-	]
+	"files": ["./src/index.ts"]
 }

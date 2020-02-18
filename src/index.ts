@@ -1,27 +1,26 @@
+import * as fontoxpath from 'fontoxpath';
+
 // Matches a namespace prefix and url from the module declaration
 export const MATCH_MODULE_NS_FROM_STRING = /(?:\n|^)module namespace ([a-z0-9]*) = "(.*)"/m;
-const validPrefixCaptureGroup = `([a-z0-9]*)`;
-const validQuoteEnclosedCaptureGroup = `"([^"]*)"`;
-const REGEXSTRING = [
+export const MATCH_IMPORTED_MODULE_NS_FROM_STRING = new RegExp([
 	`import`,
 	`\\s+`,
 	`module`,
 	`\\s+`,
 	`namespace`,
 	`\\s+`,
-	validPrefixCaptureGroup, // prefix capture group
+	`([a-z0-9]*)`, // prefix capture group
 	`\\s*`,
 	`=`,
 	`\\s*`,
-	validQuoteEnclosedCaptureGroup, // uri capture group
+	`"([^"]*)"`, // uri capture group
 	// The optional "at" part:
 	`(?:`,
 	`\\s+`,
 	`at`,
 	`\\s+`,
 	`"([^"]*)")?;` // file capture group
-].join('');
-export const MATCH_IMPORTED_MODULE_NS_FROM_STRING = new RegExp(REGEXSTRING, 'gm');
+].join(''), 'gm');
 
 declare type XQueryModuleMetadata = {
 	contents: string,
@@ -98,7 +97,7 @@ async function getXQueryModulesInSourceOrder(
 	return modules.filter((mod, i, all) => all.findIndex(m => m.url === mod.url) === i);
 }
 
-async function getXQueryModulesInDependencyOrder(
+export async function getXQueryModulesInDependencyOrder(
 	resolveLocation: (referrer: string, target: string) => string,
 	resolveContent: (location: string) => string,
 	location: string
@@ -139,4 +138,42 @@ async function getXQueryModulesInDependencyOrder(
 	};
 }
 
-export default getXQueryModulesInDependencyOrder;
+const loadedIntoFontoxpath = [];
+function loadXQueryModule(library) {
+	if (loadedIntoFontoxpath.includes(library.location)) {
+		// fontoxpath crashes if we register the same functions twice, but it also doesnt have a way to unregister
+		// an XQuery module. Ergo, when we've registered a module in the past we'll just ignore it, and hope it didn't
+		// change in the mean time.
+		return;
+	}
+
+	fontoxpath.registerXQueryModule(library.contents);
+	loadedIntoFontoxpath.push(library.location);
+}
+
+export async function evaluateXPath(
+	resolveLocation: (referrer: string, target: string) => string,
+	resolveContent: (location: string) => string,
+	location: string,
+	contextNode?: fontoxpath.Node,
+	domFacade?: fontoxpath.IDomFacade,
+	variables?: object,
+	returnType?: number,
+	options?: any
+) {
+	const modules = await getXQueryModulesInDependencyOrder(
+		resolveLocation,
+		resolveContent,
+		location
+	);
+
+	modules.libraries.forEach(loadXQueryModule);
+
+	if (!options) {
+		options = {};
+	}
+	if (!options.language) {
+		options.language = fontoxpath.evaluateXPath.XQUERY_3_1_LANGUAGE;
+	}
+	return fontoxpath.evaluateXPath(modules.main.contents, contextNode, domFacade, variables, returnType, options);
+}

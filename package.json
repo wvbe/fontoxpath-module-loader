@@ -1,30 +1,28 @@
 {
-  "name": "fonto-flat",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "jest"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
-    "@babel/preset-env": "^7.8.4",
-    "@babel/preset-typescript": "^7.8.3",
-    "@types/jest": "^25.1.1",
-    "@types/node": "^12.7.5",
-    "babel-jest": "^25.1.0",
-    "fontoxpath": "^3.9.2",
-    "jest": "^25.1.0",
-    "ts-node": "^8.6.2",
-    "tsc": "^1.20150623.0",
-    "tslint": "^6.0.0",
-    "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.7.5"
-  },
-  "dependencies": {}
+	"name": "fontoxpath-module-loader",
+	"version": "1.0.0-rc.3",
+	"main": "dist/index.js",
+	"scripts": {
+		"test": "jest",
+		"prepare": "npm run build",
+		"build": "tsc"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.8.4",
+		"@babel/plugin-proposal-class-properties": "^7.8.3",
+		"@babel/plugin-proposal-object-rest-spread": "^7.5.5",
+		"@babel/preset-env": "^7.8.4",
+		"@babel/preset-typescript": "^7.8.3",
+		"@types/jest": "^25.1.2",
+		"@types/node": "^12.12.27",
+		"babel-jest": "^25.1.0",
+		"jest": "^25.1.0",
+		"ts-node": "^8.6.2",
+		"tslint": "^6.0.0",
+		"tslint-config-prettier": "^1.18.0",
+		"typescript": "^3.7.5"
+	},
+	"dependencies": {
+		"fontoxpath": "^3.10.0"
+	}
 }
