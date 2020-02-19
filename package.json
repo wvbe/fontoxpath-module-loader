@@ -1,7 +1,7 @@
 {
 	"name": "fontoxpath-module-loader",
-	"version": "1.0.0-rc.3",
-	"main": "dist/index.js",
+	"version": "1.0.0-rc.8",
+	"main": "dist/src/index.js",
 	"scripts": {
 		"test": "jest",
 		"prepare": "npm run build",

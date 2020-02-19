@@ -39,28 +39,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fontoxpath = require("fontoxpath");
 // Matches a namespace prefix and url from the module declaration
 exports.MATCH_MODULE_NS_FROM_STRING = /(?:\n|^)module namespace ([a-z0-9]*) = "(.*)"/m;
-var validPrefixCaptureGroup = "([a-z0-9]*)";
-var validQuoteEnclosedCaptureGroup = "\"([^\"]*)\"";
-var REGEXSTRING = [
+exports.MATCH_IMPORTED_MODULE_NS_FROM_STRING = new RegExp([
     "import",
     "\\s+",
     "module",
     "\\s+",
     "namespace",
     "\\s+",
-    validPrefixCaptureGroup,
+    "([a-z0-9]*)",
     "\\s*",
     "=",
     "\\s*",
-    validQuoteEnclosedCaptureGroup,
+    "\"([^\"]*)\"",
     // The optional "at" part:
     "(?:",
     "\\s+",
     "at",
     "\\s+",
     "\"([^\"]*)\")?;" // file capture group
-].join('');
-exports.MATCH_IMPORTED_MODULE_NS_FROM_STRING = new RegExp(REGEXSTRING, 'gm');
+].join(''), 'gm');
 function getXQueryModulesInSourceOrder(resolveLocation, resolveContent, location, asMainModule) {
     return __awaiter(this, void 0, void 0, function () {
         var modules, contents, namespaceInfo, dependencies, match, matchImportedModuleNsFromString, _occurrence, importPrefix, importUrl, importLocation, importResolvedLocation, _a, _b, _c, _match, prefix, url;
@@ -158,10 +155,14 @@ function getXQueryModulesInDependencyOrder(resolveLocation, resolveContent, loca
         });
     });
 }
+exports.getXQueryModulesInDependencyOrder = getXQueryModulesInDependencyOrder;
 var loadedIntoFontoxpath = [];
 function loadXQueryModule(library) {
     if (loadedIntoFontoxpath.includes(library.location)) {
-        console.log('Mod already registered', library);
+        // fontoxpath crashes if we register the same functions twice, but it also doesnt have a way to unregister
+        // an XQuery module. Ergo, when we've registered a module in the past we'll just ignore it, and hope it didn't
+        // change in the mean time.
+        return;
     }
     fontoxpath.registerXQueryModule(library.contents);
     loadedIntoFontoxpath.push(library.location);
