@@ -7,3 +7,8 @@ declare function lib1:do () as xs:string {
 };
 
 
+declare %updating function lib1:xquf ($n) as xs:string {
+	replace node $n with <foo />, 'Great success'
+};
+
+

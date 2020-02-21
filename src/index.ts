@@ -32,6 +32,19 @@ declare type XQueryModuleMetadata = {
 	url: string
 };
 
+const loadedIntoFontoxpath = [];
+function loadXQueryModule(library) {
+	if (loadedIntoFontoxpath.includes(library.location)) {
+		// fontoxpath crashes if we register the same functions twice, but it also doesnt have a way to unregister
+		// an XQuery module. Ergo, when we've registered a module in the past we'll just ignore it, and hope it didn't
+		// change in the mean time.
+		return;
+	}
+
+	fontoxpath.registerXQueryModule(library.contents);
+	loadedIntoFontoxpath.push(library.location);
+}
+
 async function getXQueryModulesInSourceOrder(
 	resolveLocation: (referrer: string, target: string) => string,
 	resolveContent: (location: string) => string,
@@ -97,7 +110,7 @@ async function getXQueryModulesInSourceOrder(
 	return modules.filter((mod, i, all) => all.findIndex(m => m.url === mod.url) === i);
 }
 
-export async function getXQueryModulesInDependencyOrder(
+export async function getModules(
 	resolveLocation: (referrer: string, target: string) => string,
 	resolveContent: (location: string) => string,
 	location: string
@@ -138,19 +151,6 @@ export async function getXQueryModulesInDependencyOrder(
 	};
 }
 
-const loadedIntoFontoxpath = [];
-function loadXQueryModule(library) {
-	if (loadedIntoFontoxpath.includes(library.location)) {
-		// fontoxpath crashes if we register the same functions twice, but it also doesnt have a way to unregister
-		// an XQuery module. Ergo, when we've registered a module in the past we'll just ignore it, and hope it didn't
-		// change in the mean time.
-		return;
-	}
-
-	fontoxpath.registerXQueryModule(library.contents);
-	loadedIntoFontoxpath.push(library.location);
-}
-
 export async function evaluateXPath(
 	resolveLocation: (referrer: string, target: string) => string,
 	resolveContent: (location: string) => string,
@@ -161,7 +161,7 @@ export async function evaluateXPath(
 	returnType?: number,
 	options?: any
 ) {
-	const modules = await getXQueryModulesInDependencyOrder(
+	const modules = await getModules(
 		resolveLocation,
 		resolveContent,
 		location
@@ -176,4 +176,33 @@ export async function evaluateXPath(
 		options.language = fontoxpath.evaluateXPath.XQUERY_3_1_LANGUAGE;
 	}
 	return fontoxpath.evaluateXPath(modules.main.contents, contextNode, domFacade, variables, returnType, options);
+}
+
+export async function evaluateUpdatingExpression(
+	resolveLocation: (referrer: string, target: string) => string,
+	resolveContent: (location: string) => string,
+	location: string,
+	contextNode?: fontoxpath.Node,
+	domFacade?: fontoxpath.IDomFacade,
+	variables?: object,
+	options?: any
+) {
+	const modules = await getModules(
+		resolveLocation,
+		resolveContent,
+		location
+	);
+
+	modules.libraries.forEach(loadXQueryModule);
+
+	const { pendingUpdateList, xdmValue } = await fontoxpath.evaluateUpdatingExpression(
+		modules.main.contents,
+		contextNode,
+		domFacade,
+		variables,
+		options);
+
+	fontoxpath.executePendingUpdateList(pendingUpdateList);
+
+	return xdmValue;
 }

@@ -1,23 +1,31 @@
 import path from 'path';
 import fs from 'fs';
+import slimdomSaxParser from 'slimdom-sax-parser';
 
-import { evaluateXPath } from '../src/index';
+import { evaluateXPath, evaluateUpdatingExpression } from '../src/index';
+
+const exampleResolveLocation = (referrer, target) => path.resolve(path.dirname(referrer), target);
+const exampleResolveContents = target => fs.readFileSync(target, 'utf8');
 
 describe('Works?', () => {
-	it('Synchronously', async () => {
+	it('evaluateXPath', async () => {
 		const returnValue = await evaluateXPath(
-			(referrer, target) => path.resolve(path.dirname(referrer), target),
-			target => fs.readFileSync(target, 'utf8'),
+			exampleResolveLocation,
+			exampleResolveContents,
 			path.resolve(__dirname, 'xquery', 'main.xqm')
 		);
 		expect(returnValue).toBe('it works');
 	});
-	it('Synchronously2', async () => {
-		const returnValue = await evaluateXPath(
-			(referrer, target) => path.resolve(path.dirname(referrer), target),
-			target => fs.readFileSync(target, 'utf8'),
-			path.resolve(__dirname, 'xquery', 'main.xqm')
+
+	it('evaluateUpdatingExpression', async () => {
+		const node = slimdomSaxParser.sync('<xml />');
+		const result = await evaluateUpdatingExpression(
+			exampleResolveLocation,
+			exampleResolveContents,
+			path.resolve(__dirname, 'xquery', 'xquf.xqm'),
+			node
 		);
-		expect(returnValue).toBe('it works');
+		expect(result).toBe('Great success');
+		expect(node.documentElement.nodeName).toBe('foo');
 	});
 });
