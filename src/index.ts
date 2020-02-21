@@ -1,4 +1,4 @@
-import * as fontoxpath from 'fontoxpath';
+import * as originalFontoxpath from 'fontoxpath';
 
 // Matches a namespace prefix and url from the module declaration
 export const MATCH_MODULE_NS_FROM_STRING = /(?:\n|^)module namespace ([a-z0-9]*) = "(.*)"/m;
@@ -31,19 +31,6 @@ declare type XQueryModuleMetadata = {
 	unresolved: boolean,
 	url: string
 };
-
-const loadedIntoFontoxpath = [];
-function loadXQueryModule(library) {
-	if (loadedIntoFontoxpath.includes(library.location)) {
-		// fontoxpath crashes if we register the same functions twice, but it also doesnt have a way to unregister
-		// an XQuery module. Ergo, when we've registered a module in the past we'll just ignore it, and hope it didn't
-		// change in the mean time.
-		return;
-	}
-
-	fontoxpath.registerXQueryModule(library.contents);
-	loadedIntoFontoxpath.push(library.location);
-}
 
 async function getXQueryModulesInSourceOrder(
 	resolveLocation: (referrer: string, target: string) => string,
@@ -110,6 +97,21 @@ async function getXQueryModulesInSourceOrder(
 	return modules.filter((mod, i, all) => all.findIndex(m => m.url === mod.url) === i);
 }
 
+export const fontoxpath = originalFontoxpath;
+
+const loadedIntoFontoxpath = [];
+export function loadModule(library) {
+	if (loadedIntoFontoxpath.includes(library.location)) {
+		// fontoxpath crashes if we register the same functions twice, but it also doesnt have a way to unregister
+		// an XQuery module. Ergo, when we've registered a module in the past we'll just ignore it, and hope it didn't
+		// change in the mean time.
+		return;
+	}
+
+	originalFontoxpath.registerXQueryModule(library.contents);
+	loadedIntoFontoxpath.push(library.location);
+}
+
 export async function getModules(
 	resolveLocation: (referrer: string, target: string) => string,
 	resolveContent: (location: string) => string,
@@ -155,8 +157,8 @@ export async function evaluateXPath(
 	resolveLocation: (referrer: string, target: string) => string,
 	resolveContent: (location: string) => string,
 	location: string,
-	contextNode?: fontoxpath.Node,
-	domFacade?: fontoxpath.IDomFacade,
+	contextNode?: originalFontoxpath.Node,
+	domFacade?: originalFontoxpath.IDomFacade,
 	variables?: object,
 	returnType?: number,
 	options?: any
@@ -167,23 +169,23 @@ export async function evaluateXPath(
 		location
 	);
 
-	modules.libraries.forEach(loadXQueryModule);
+	modules.libraries.forEach(loadModule);
 
 	if (!options) {
 		options = {};
 	}
 	if (!options.language) {
-		options.language = fontoxpath.evaluateXPath.XQUERY_3_1_LANGUAGE;
+		options.language = originalFontoxpath.evaluateXPath.XQUERY_3_1_LANGUAGE;
 	}
-	return fontoxpath.evaluateXPath(modules.main.contents, contextNode, domFacade, variables, returnType, options);
+	return originalFontoxpath.evaluateXPath(modules.main.contents, contextNode, domFacade, variables, returnType, options);
 }
 
 export async function evaluateUpdatingExpression(
 	resolveLocation: (referrer: string, target: string) => string,
 	resolveContent: (location: string) => string,
 	location: string,
-	contextNode?: fontoxpath.Node,
-	domFacade?: fontoxpath.IDomFacade,
+	contextNode?: originalFontoxpath.Node,
+	domFacade?: originalFontoxpath.IDomFacade,
 	variables?: object,
 	options?: any
 ) {
@@ -193,16 +195,16 @@ export async function evaluateUpdatingExpression(
 		location
 	);
 
-	modules.libraries.forEach(loadXQueryModule);
+	modules.libraries.forEach(loadModule);
 
-	const { pendingUpdateList, xdmValue } = await fontoxpath.evaluateUpdatingExpression(
+	const { pendingUpdateList, xdmValue } = await originalFontoxpath.evaluateUpdatingExpression(
 		modules.main.contents,
 		contextNode,
 		domFacade,
 		variables,
 		options);
 
-	fontoxpath.executePendingUpdateList(pendingUpdateList);
+	originalFontoxpath.executePendingUpdateList(pendingUpdateList);
 
 	return xdmValue;
 }

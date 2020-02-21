@@ -9,7 +9,7 @@ the location of your "main" XQuery module and it will try to resolve any "librar
 ## Use
 
 ```js
-import { evaluateXPath } from 'fontoxpath-module-loader';
+import { evaluateXPath, eva } from 'fontoxpath-module-loader';
 
 const result = await evaluateXPath(
 	// Given a target location and referrer, return the location.
@@ -31,7 +31,7 @@ import module namespace foo = "https://foo.bar" at "./my-other-xquery-example.xq
 foo:do-something()
 ```
 
-## `evaluateXPath`
+## `evaluateXPath()`
 
 Runs a query and returns the result to you. Is the same as `fontoxpath.evaluateXPath` with exception of the first three
 arguments:
@@ -55,7 +55,7 @@ Please revise the [fontoxpath](https://github.com/FontoXML/fontoxpath) documenta
 
 Returns a node, string, boolean, number, array, object or null based on the expression in your XQuery module file.
 
-## `evaluateUpdatingExpression`
+## `evaluateUpdatingExpression()`
 
 Runs a query, updates the given DOM in place, and potentially also returns a result to you. Is the same as
 `fontoxpath.evaluateUpdatingExpression` with exception of the first three arguments:
