@@ -74,7 +74,7 @@ Please revise the [fontoxpath](https://github.com/FontoXML/fontoxpath) documenta
 | 4.  | `contextNode?: fontoxpath.Node`     | Is exactly the `contextNode` argument that would normally be passed to `fontoxpath.evaluateXPath`. |
 | 5.  | `domFacade?: fontoxpath.IDomFacade` | Is exactly the `domFacade` argument that would normally be passed to `fontoxpath.evaluateXPath`.   |
 | 6.  | `variables?: object`                | Is exactly the `variables` argument that would normally be passed to `fontoxpath.evaluateXPath`.   |
-| 8.  | `options?: any`                     | Is exactly the `options` argument that would normally be passed to `fontoxpath.evaluateXPath`.     |
+| 7.  | `options?: any`                     | Is exactly the `options` argument that would normally be passed to `fontoxpath.evaluateXPath`.     |
 
 Will apply any updates as per your XQUF expression to the given `contextNode`. Additionally, your XQUF may return
 something which results in this function resolving to that node, string, number, similar to what `evaluateXPath` would
