@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import slimdomSaxParser from 'slimdom-sax-parser';
+import { sync } from 'slimdom-sax-parser';
 
 import { evaluateXPath, evaluateUpdatingExpression } from '../src/index';
 
@@ -18,7 +18,7 @@ describe('Works?', () => {
 	});
 
 	it('evaluateUpdatingExpression', async () => {
-		const node = slimdomSaxParser.sync('<xml />');
+		const node = sync('<xml />');
 		const result = await evaluateUpdatingExpression(
 			exampleResolveLocation,
 			exampleResolveContents,
